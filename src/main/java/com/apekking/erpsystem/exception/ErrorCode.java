@@ -14,7 +14,13 @@ public enum ErrorCode {
 
     // ===== BRANCH =====
     BRANCH_NOT_FOUND(HttpStatus.NOT_FOUND, "Branch not found"),
-    BRANCH_CODE_EXISTS(HttpStatus.BAD_REQUEST, "Branch code already exists for this company");
+    BRANCH_CODE_EXISTS(HttpStatus.BAD_REQUEST, "Branch code already exists for this company"),
+
+    // ===== DEPARTMENT =====
+    DEPARTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Department not found"),
+    DEPARTMENT_CODE_EXISTS(HttpStatus.BAD_REQUEST, "Department code already exists in this branch"),
+    INVALID_PARENT_DEPARTMENT(HttpStatus.BAD_REQUEST, "Invalid parent department");
+
 
     private final HttpStatus httpStatus;
     private final String defaultMessage;
