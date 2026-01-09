@@ -4,13 +4,17 @@ import com.apekking.erpsystem.core.branch.BranchRepository;
 import com.apekking.erpsystem.core.company.CompanyRepository;
 import com.apekking.erpsystem.core.department.dto.DepartmentCreateRequest;
 import com.apekking.erpsystem.core.department.dto.DepartmentResponse;
+import com.apekking.erpsystem.core.department.dto.DepartmentTreeResponse;
 import com.apekking.erpsystem.core.department.dto.DepartmentUpdateRequest;
 import com.apekking.erpsystem.exception.BusinessException;
 import com.apekking.erpsystem.exception.ErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -136,6 +140,44 @@ public class DepartmentServiceImpl implements DepartmentService {
         DepartmentEntity e = departmentRepo.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.DEPARTMENT_NOT_FOUND));
         e.setIsDeleted(true); // soft delete
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<DepartmentTreeResponse> getTreeByBranch(Long branchId) {
+
+        List<DepartmentEntity> departments =
+                departmentRepo.findAllByBranchIdAndIsDeletedFalse(branchId);
+
+        // map id -> node
+        Map<Long, DepartmentTreeResponse> map = new HashMap<>();
+
+        for (DepartmentEntity d : departments) {
+            map.put(
+                    d.getId(),
+                    new DepartmentTreeResponse(
+                            d.getId(),
+                            d.getCode(),
+                            d.getName(),
+                            d.getParentId()
+                    )
+            );
+        }
+
+        List<DepartmentTreeResponse> roots = new ArrayList<>();
+
+        for (DepartmentTreeResponse node : map.values()) {
+            if (node.getParentId() == null) {
+                roots.add(node);
+            } else {
+                DepartmentTreeResponse parent = map.get(node.getParentId());
+                if (parent != null) {
+                    parent.getChildren().add(node);
+                }
+            }
+        }
+
+        return roots;
     }
 }
 

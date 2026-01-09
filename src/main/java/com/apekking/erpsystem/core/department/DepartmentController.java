@@ -2,6 +2,7 @@ package com.apekking.erpsystem.core.department;
 
 import com.apekking.erpsystem.core.department.dto.DepartmentCreateRequest;
 import com.apekking.erpsystem.core.department.dto.DepartmentResponse;
+import com.apekking.erpsystem.core.department.dto.DepartmentTreeResponse;
 import com.apekking.erpsystem.core.department.dto.DepartmentUpdateRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -57,5 +58,13 @@ public class DepartmentController {
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
+
+    @Operation(summary = "Department tree")
+    @GetMapping("/tree")
+    public List<DepartmentTreeResponse> getTree(
+            @RequestParam Long branchId) {
+        return service.getTreeByBranch(branchId);
+    }
+
 }
 
