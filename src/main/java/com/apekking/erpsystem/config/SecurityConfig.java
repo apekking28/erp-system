@@ -23,8 +23,14 @@ public class SecurityConfig {
 
                 // Allow all requests (sementara)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
                         .anyRequest().permitAll()
                 )
+
 
                 // Disable default login page
                 .httpBasic(Customizer.withDefaults())

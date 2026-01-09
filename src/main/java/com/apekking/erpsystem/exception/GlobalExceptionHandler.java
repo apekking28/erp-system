@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
     // ===============================
     // Fallback (Unexpected Error)
     // ===============================
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex) {
 
         return ResponseEntity

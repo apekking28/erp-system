@@ -10,7 +10,11 @@ public enum ErrorCode {
 
     // ===== COMPANY =====
     COMPANY_NOT_FOUND(HttpStatus.NOT_FOUND, "Company not found"),
-    COMPANY_CODE_EXISTS(HttpStatus.BAD_REQUEST, "Company code already exists");
+    COMPANY_CODE_EXISTS(HttpStatus.BAD_REQUEST, "Company code already exists"),
+
+    // ===== BRANCH =====
+    BRANCH_NOT_FOUND(HttpStatus.NOT_FOUND, "Branch not found"),
+    BRANCH_CODE_EXISTS(HttpStatus.BAD_REQUEST, "Branch code already exists for this company");
 
     private final HttpStatus httpStatus;
     private final String defaultMessage;
