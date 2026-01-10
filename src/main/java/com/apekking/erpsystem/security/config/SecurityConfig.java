@@ -1,8 +1,9 @@
-package com.apekking.erpsystem.config;
+package com.apekking.erpsystem.security.config;
 
+import com.apekking.erpsystem.security.jwt.JwtAuthenticationFilter;
+import com.apekking.erpsystem.security.jwt.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
@@ -14,30 +15,31 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
+    private final JwtTokenProvider provider;
+
+    public SecurityConfig(JwtTokenProvider provider) {
+        this.provider = provider;
+    }
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        http
-                // Disable CSRF (karena belum ada auth & pakai REST API)
-                .csrf(csrf -> csrf.disable())
-
-                // Allow all requests (sementara)
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/v3/api-docs/**",
+                                "/api/auth/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/v3/api-docs/**",
+                                "/api/core/**"
                         ).permitAll()
-                        .anyRequest().permitAll()
-                )
-
-
-                // Disable default login page
-                .httpBasic(Customizer.withDefaults())
-                .formLogin(form -> form.disable());
-
+                        .anyRequest().authenticated()
+                );
+//                .addFilterBefore(
+//                        new JwtAuthenticationFilter(provider),
+//                        org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
+//                );
         return http.build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
