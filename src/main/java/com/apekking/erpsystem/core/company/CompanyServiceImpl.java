@@ -3,6 +3,8 @@ package com.apekking.erpsystem.core.company;
 import com.apekking.erpsystem.core.company.dto.CompanyCreateRequest;
 import com.apekking.erpsystem.core.company.dto.CompanyResponse;
 import com.apekking.erpsystem.core.company.dto.CompanyUpdateRequest;
+import com.apekking.erpsystem.exception.BusinessException;
+import com.apekking.erpsystem.exception.ErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +23,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public CompanyResponse create(CompanyCreateRequest req) {
         if (repo.existsByCodeAndIsDeletedFalse(req.getCode())) {
-            throw new IllegalArgumentException("COMPANY_CODE_EXISTS");
+            throw new BusinessException(ErrorCode.COMPANY_CODE_EXISTS);
         }
 
         CompanyEntity e = new CompanyEntity();
@@ -38,7 +40,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Transactional(readOnly = true)
     public CompanyResponse getById(Long id) {
         CompanyEntity e = repo.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new IllegalArgumentException("COMPANY_NOT_FOUND"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.COMPANY_NOT_FOUND));
         return CompanyResponse.from(e);
     }
 
@@ -54,7 +56,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public CompanyResponse update(Long id, CompanyUpdateRequest req) {
         CompanyEntity e = repo.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new IllegalArgumentException("COMPANY_NOT_FOUND"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.COMPANY_NOT_FOUND));
 
         e.setName(req.getName());
         e.setStatus(req.getStatus());
@@ -67,7 +69,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public void delete(Long id) {
         CompanyEntity e = repo.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new IllegalArgumentException("COMPANY_NOT_FOUND"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.COMPANY_NOT_FOUND));
         e.setIsDeleted(true);
     }
 }
