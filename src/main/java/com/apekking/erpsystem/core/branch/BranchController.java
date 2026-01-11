@@ -13,7 +13,7 @@ import java.util.List;
 
 @Tag(name = "Branch", description = "Branch management API")
 @RestController
-@RequestMapping("/api/core/branches")
+@RequestMapping("/core/branches")
 public class BranchController {
 
     private final BranchService service;

@@ -13,7 +13,7 @@ import java.util.List;
 
 @Tag(name = "Company", description = "Company management API")
 @RestController
-@RequestMapping("/api/core/companies")
+@RequestMapping("/core/companies")
 public class CompanyController {
 
     private final CompanyService service;
@@ -37,6 +37,7 @@ public class CompanyController {
     @Operation(summary = "Get all companies")
     @GetMapping
     public List<CompanyResponse> getAll() {
+        System.out.println("Get all companies");
         return service.getAll();
     }
 

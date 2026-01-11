@@ -2,6 +2,7 @@ package com.apekking.erpsystem.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -9,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import java.io.IOException;
 import java.util.List;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -24,24 +26,52 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletRequest req,
             HttpServletResponse res,
             FilterChain chain
-    ) throws java.io.IOException, jakarta.servlet.ServletException {
+    ) throws IOException, ServletException {
 
         String header = req.getHeader("Authorization");
+
         if (header != null && header.startsWith("Bearer ")) {
-            Claims c = provider.parse(header.substring(7));
+            try {
+                Claims claims = provider.parse(header.substring(7));
 
-            Long userId = Long.valueOf(c.getSubject());
-            List<String> perms = c.get("permissions", List.class);
+                String userId = claims.getSubject();
 
-            var authorities = perms.stream()
-                    .map(p -> new SimpleGrantedAuthority(p))
-                    .toList();
+                List<String> permissions =
+                        claims.get("permissions", List.class);
 
-            var auth = new UsernamePasswordAuthenticationToken(userId, null, authorities);
-            SecurityContextHolder.getContext().setAuthentication(auth);
+                var authorities = permissions.stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                userId,
+                                null,
+                                authorities
+                        );
+
+                // 🔥 PENTING DI BOOT 3
+                authentication.setDetails(
+                        new org.springframework.security.web.authentication
+                                .WebAuthenticationDetailsSource()
+                                .buildDetails(req)
+                );
+
+                SecurityContextHolder.getContext()
+                        .setAuthentication(authentication);
+
+                System.out.println("JWT AUTH OK userId=" + userId);
+
+            } catch (Exception e) {
+                SecurityContextHolder.clearContext();
+                System.out.println("JWT AUTH FAILED: " + e.getMessage());
+            }
         }
+
         chain.doFilter(req, res);
     }
+
+
 }
 
 

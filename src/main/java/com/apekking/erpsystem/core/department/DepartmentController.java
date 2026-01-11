@@ -14,7 +14,7 @@ import java.util.List;
 
 @Tag(name = "Department", description = "Department management API")
 @RestController
-@RequestMapping("/api/core/departments")
+@RequestMapping("/core/departments")
 public class DepartmentController {
 
     private final DepartmentService service;
