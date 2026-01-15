@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -52,15 +53,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 // 🔥 PENTING DI BOOT 3
                 authentication.setDetails(
-                        new org.springframework.security.web.authentication
-                                .WebAuthenticationDetailsSource()
+                        new WebAuthenticationDetailsSource()
                                 .buildDetails(req)
                 );
 
                 SecurityContextHolder.getContext()
                         .setAuthentication(authentication);
-
-                System.out.println("JWT AUTH OK userId=" + userId);
 
             } catch (Exception e) {
                 SecurityContextHolder.clearContext();

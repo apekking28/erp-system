@@ -1,5 +1,7 @@
 package com.apekking.erpsystem.security.config;
 
+import com.apekking.erpsystem.security.jwt.JwtAccessDeniedHandler;
+import com.apekking.erpsystem.security.jwt.JwtAuthenticationEntryPoint;
 import com.apekking.erpsystem.security.jwt.JwtAuthenticationFilter;
 import com.apekking.erpsystem.security.jwt.JwtTokenProvider;
 import jakarta.annotation.PostConstruct;
@@ -19,17 +21,28 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final JwtTokenProvider provider;
+    private final JwtTokenProvider tokenProvider;
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private final JwtAccessDeniedHandler accessDeniedHandler;
 
-    public SecurityConfig(JwtTokenProvider provider) {
-        this.provider = provider;
+    public SecurityConfig(
+            JwtTokenProvider tokenProvider,
+            JwtAuthenticationEntryPoint authenticationEntryPoint,
+            JwtAccessDeniedHandler accessDeniedHandler
+    ) {
+        this.tokenProvider = tokenProvider;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .anonymous(anon -> anon.disable())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(authenticationEntryPoint) // 401
+                        .accessDeniedHandler(accessDeniedHandler)           // 403
+                )
                 .authorizeHttpRequests(auth -> auth
                         // PUBLIC
                         .requestMatchers(
@@ -44,21 +57,12 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
-                        new JwtAuthenticationFilter(provider),
+                        new JwtAuthenticationFilter(tokenProvider),
                         org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
                 );
 
         return http.build();
     }
-
-    @PostConstruct
-    public void init() {
-        SecurityContextHolder.setStrategyName(
-                SecurityContextHolder.MODE_THREADLOCAL
-        );
-    }
-
-
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

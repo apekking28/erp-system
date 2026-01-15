@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -103,14 +104,16 @@ public class RoleServiceImpl implements RoleService {
                     .orElseThrow(() -> new BusinessException(ErrorCode.PERMISSION_NOT_FOUND));
         }
 
-        // replace permissions
-        rolePermissionRepo.deleteAllByRoleId(roleId);
+        Set<Long> existingPermissionIds =
+                rolePermissionRepo.findPermissionIdsByRoleId(roleId);
 
         for (Long permissionId : req.permissionIds) {
-            RolePermissionEntity rp = new RolePermissionEntity();
-            rp.setRoleId(roleId);
-            rp.setPermissionId(permissionId);
-            rolePermissionRepo.save(rp);
+            if (!existingPermissionIds.contains(permissionId)) {
+                RolePermissionEntity rp = new RolePermissionEntity();
+                rp.setRoleId(roleId);
+                rp.setPermissionId(permissionId);
+                rolePermissionRepo.save(rp);
+            }
         }
     }
 

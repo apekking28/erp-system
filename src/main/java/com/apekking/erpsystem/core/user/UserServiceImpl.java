@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -145,14 +146,16 @@ public class UserServiceImpl implements UserService {
                     .orElseThrow(() -> new BusinessException(ErrorCode.ROLE_NOT_FOUND));
         }
 
-        // replace roles
-        userRoleRepo.deleteAllByUserId(userId);
+        Set<Long> existingRoleIds =
+                userRoleRepo.findRoleIdsByUserId(userId);
 
         for (Long roleId : req.roleIds) {
-            UserRoleEntity ur = new UserRoleEntity();
-            ur.setUserId(userId);
-            ur.setRoleId(roleId);
-            userRoleRepo.save(ur);
+            if (!existingRoleIds.contains(roleId)) {
+                UserRoleEntity ur = new UserRoleEntity();
+                ur.setUserId(userId);
+                ur.setRoleId(roleId);
+                userRoleRepo.save(ur);
+            }
         }
     }
 

@@ -14,6 +14,24 @@ public class ErrorResponse {
         this.timestamp = LocalDateTime.now();
     }
 
+    public static ErrorResponse unauthorized() {
+        return new ErrorResponse(
+                "UNAUTHORIZED",
+                "Authentication is required to access this resource"
+        );
+    }
+
+    public static ErrorResponse forbidden() {
+        return new ErrorResponse(
+                "FORBIDDEN",
+                "You do not have permission to access this resource"
+        );
+    }
+
+    public static ErrorResponse business(String code, String message) {
+        return new ErrorResponse(code, message);
+    }
+
     public String getCode() {
         return code;
     }
