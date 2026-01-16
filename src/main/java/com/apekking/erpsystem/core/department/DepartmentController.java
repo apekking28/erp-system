@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class DepartmentController {
     }
 
     @Operation(summary = "Create new department")
+    @PreAuthorize("hasAuthority('DEPARTMENT_CREATE')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public DepartmentResponse create(@Valid @RequestBody DepartmentCreateRequest req) {
@@ -31,12 +33,14 @@ public class DepartmentController {
     }
 
     @Operation(summary = "Get department by id")
+    @PreAuthorize("hasAuthority('DEPARTMENT_VIEW')")
     @GetMapping("/{id}")
     public DepartmentResponse getById(@PathVariable Long id) {
         return service.getById(id);
     }
 
     @Operation(summary = "Get all departments")
+    @PreAuthorize("hasAuthority('DEPARTMENT_VIEW')")
     @GetMapping
     public List<DepartmentResponse> getAll(
             @RequestParam(required = false) Long companyId,
@@ -45,6 +49,7 @@ public class DepartmentController {
     }
 
     @Operation(summary = "Update department")
+    @PreAuthorize("hasAuthority('DEPARTMENT_UPDATE')")
     @PutMapping("/{id}")
     public DepartmentResponse update(
             @PathVariable Long id,
@@ -54,12 +59,14 @@ public class DepartmentController {
 
     @Operation(summary = "Delete department (soft delete)")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('DEPARTMENT_DELETE')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         service.delete(id);
     }
 
     @Operation(summary = "Department tree")
+    @PreAuthorize("hasAuthority('DEPARTMENT_VIEW')")
     @GetMapping("/tree")
     public List<DepartmentTreeResponse> getTree(
             @RequestParam Long branchId) {

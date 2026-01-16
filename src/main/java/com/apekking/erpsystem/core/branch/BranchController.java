@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class BranchController {
     }
 
     @Operation(summary = "Create new branch")
+    @PreAuthorize("hasAuthority('BRANCH_CREATE')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BranchResponse create(@Valid @RequestBody BranchCreateRequest req) {
@@ -30,12 +32,14 @@ public class BranchController {
     }
 
     @Operation(summary = "Get branch by id")
+    @PreAuthorize("hasAuthority('BRANCH_VIEW')")
     @GetMapping("/{id}")
     public BranchResponse getById(@PathVariable Long id) {
         return service.getById(id);
     }
 
     @Operation(summary = "Get all branches")
+    @PreAuthorize("hasAuthority('BRANCH_VIEW')")
     @GetMapping
     public List<BranchResponse> getAll(
             @RequestParam(required = false) Long companyId) {
@@ -43,6 +47,7 @@ public class BranchController {
     }
 
     @Operation(summary = "Update branch")
+    @PreAuthorize("hasAuthority('BRANCH_UPDATE')")
     @PutMapping("/{id}")
     public BranchResponse update(
             @PathVariable Long id,
@@ -51,6 +56,7 @@ public class BranchController {
     }
 
     @Operation(summary = "Delete branch (soft delete)")
+    @PreAuthorize("hasAuthority('BRANCH_DELETE')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
